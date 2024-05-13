@@ -1,0 +1,78 @@
+show dbs 
+db 
+use <database name>
+db.createCollection("student")
+show collections
+
+db.school.insertOne({
+... name : "Anila",
+... r_no : "1",
+... subjects: ["c", "java", "python", "ruby", "go", "js"]
+... })
+
+db.school.find()
+
+db.students.insertMany([
+   { name: "Arun", age: 25, subjects: ['Math', 'Physics'] },
+   { name: "Anila", age: 22, subjects: ['Chemistry', 'Biology'] },
+   { name: "Akhil", age: 20, subjects: ['History', 'Geography'] }
+])
+
+db.school.find({name:'Arun'})
+db.school.find().sort({name:1})
+db.school.find({name : {$ne : 'Akhil'}})
+ db.school.find({name : 'Arun', r_no : '5'})
+This is for AND Operation
+db.school.find({ $or : [{name : 'Arun'}, {name : 'Anila'}]})
+This is for OR operation
+db.school.find().count()
+db.school.find({name : 'Arun'}).count()
+db.school.find().limit(2)
+ db.school.findOne()
+
+db.school.find().forEach(function(doc) {
+	print("Name: " + doc.name);
+});
+
+db.school.find({}, {'name':1})
+ db.school.find({name: 'Arun'}, {'name':1})
+db.school.find({}, {'name':1, _id : 0})
+db.school.find({}, {'name':1, 'r_no': 1, _id : 0})
+db.school.find().skip(2)
+db.school.find().skip(5).limit(3)
+
+db.school.updateOne(
+	{ name: 'Anila’' }, // Filter to find the document to update
+	{ $set: { r_no: 3, subjects: ['Photography', 'Music', 'Dance'] } } // $set operator to update fields
+)
+
+db.school.updateOne(
+... 	{ name: 'Monu' }, // Filter to find the document to update
+... 	{ $set: { r_no: 8, subjects: ['Maths', 'Civil', 'Mechanical'] } }, // $set operator to update fields
+... 	{ upsert: true } // Option to insert if the document doesn't exist
+... )
+
+Increment
+db.school.update({name : 'Joel'}, {$inc : {r_no: 1}})
+db.school.update({name : 'Monu'}, { $rename : {'r_no' : 'roll_no'}})
+db.school.deleteOne({name : 'Sandhya'})
+Add a subdocument
+ db.school.update( {name : 'Sujatha'},
+... {
+... $set : { comments : [
+... { body : 'Study well',
+... teacher : 'Prasanth'},
+... { body : 'Need improvements',
+... teacher : 'Raji'},
+... { body : 'Practice more',
+... teachere : 'Nikhil'}
+... ]
+... }}
+... )
+
+Element Match
+db.school.find({ comments: { $elemMatch: { teacher: 'Nikhil' } } })
+Greater than
+db.school.find({ r_no : {$gt : 10 }})
+$gte 
+db.school.find({ r_no : {$lt : 5 }})
