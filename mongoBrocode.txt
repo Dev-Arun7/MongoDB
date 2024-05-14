@@ -1,0 +1,443 @@
+ databases: it is a place where we store our application data
+
+relational and non relational databases:
+	relational database is structured data storage that organizes information into tables with rows and columns. for eg: mySQL, postgresSQL etc.. uses a schema to define the structure
+	of the data, specifying the types and relations between data elements.
+	will face challenges when it comes to horizontal scalability.
+
+	non relational database or noSql is database management system that store data into a more flexible and schema-less way. used to handle unstructured or semi structured datas.
+	foreg: mongoDB, redis, Cassandra, Amazon DynamoDB
+	supports various data formats.
+
+mongoDB:
+	1)database:
+		a)_collections:
+			b)_document
+
+mongoose is a lib that connects you to the database, provide us an api through which we put, patch, insert, get and delete data.
+
+
+nosql means not only sql
+mongodb doesnt follow sql's table structure instead stored in documents and documents together called collections.
+data is stored as field value pairs. similar to json but its bson(binary js obj notation).
+
+json vs bson: both are data formats used to represent structured data. json is a human readable, text-based format while bson is not as readable as json, binary format for efficiency and
+machine processing . 
+json is used for config files and api responses, while bson is used for databases and data storage where efficiency and speed is important like for high-perfomance apps.
+bson is more space-efficient due to its binary format, making it faster to store and retreive data from databases.
+
+general idea is data which is accessed together is stored together rather than in seperate tables.
+
+doc is a group of field value pairs to represent an object and doc's together called collection and database is a group of one or more collections.
+
+compass is a gui for managing our database
+
+cls
+mongosh
+exit
+show dbs 
+
+use dbname -- to use a db or create and use new db
+db.createCollection() -- to create a collection
+db.dropDatabase() -- to delete a database
+
+db.collectionName.insertOne({}); -- to insert one document
+db.collectionName.find() 	 -- to show all docs in the collection	
+db.collectionName.insertMany([{},{}]) -- to insert many docs at a time 
+
+datatypes in db
+
+string is a collection of texts in either single quotes or double quotes
+integer - whole nums
+doubles - decimal nums
+booleans - either true or false
+new Date() - date objects -- new Date("2023-10-11T00:00:00")
+null - means no value
+
+field array - ["asdf","eqewr"] -- variable with multiple values
+nested docs - {
+		name:"asdf",
+		age:20
+	       }
+
+
+sorting: we actually method chain sort() with find() to return collection in a sorted order :
+
+	db.students.find().sort({fieldName: 1 for ascending & -1 for descending})
+
+limit : we can limit the amount of docs while returning the collection
+	
+	db.students.find().limit(number of docs you want to return for eg: 2)
+
+you can also chain it with sort method
+
+	db.students.find().sort({fieldName:-1}).limit(2)
+
+
+find:
+	db.students.find({query},{projection})
+	
+	we use this query params to filter the docs with desired values 
+	with comma you can filter by giving query params as much as you want
+
+	and we use projection to return only the desired field in the docs and ignore the rest
+	like if we put name in projection , it will return the collection of docs with only id and names.
+	its a boolean you can mention the field and set it to true. and if you want to ignore id _id:false.
+
+update:
+	
+	db.students.updateOne({filter},{update})
+ 	
+	filter parameter is for selection criteria
+
+ 	and in update paramtere we use set object $set:{field:value} to update or add new field and $unset to delete a field
+
+	updateMany({},{})
+
+	$exists:true/false to check wether a field is present in a doc or not
+
+	field:{$exists:true/false}
+
+delete:
+
+	db.students.deleteOne({field:value}--for selection criteria)
+
+	deleteMany()
+
+
+Operators:
+
+	operators in mongodb are denoted by $ sign
+	
+	comparison operators return value data based on value comparisons.
+
+	$ne -- not equal field:{$ne:fieldvalue}
+	
+	$lt & $gt -- less than and greater than
+	$lte & $gte --  less than or equal to and greater than or equal to
+	you can multiple operators by putting coma for eg: db.students.find({age:{$gte:4,$lte:5}})
+
+	$in -- it is an operator to find the fields with the value given inside the $in array
+	db.students.find({age:{in[20,21]})
+
+
+	logical operators return data based on expressions that evaluate true or false
+
+	$and, $or, $nor, $not
+
+	we use $and operator to find by giving multiple selection criterias in an array in boolean or using other opreators
+	db.students.find({$and:[{age:{$gte:20}},{fullTime:true}]})
+
+	$or is same as and but if one of the condition is true it will return the field.
+
+	$nor is the opposite of $and operator , if the condition given are false then it will return the field.
+
+	$not is used to show the field and values that is not same as the mentioned one's and it will show the field and value with the null value if match the regex.
+
+
+Indexes:
+	Basically used to get information quickly like the index in a book.
+
+	index allow us for the quick lookup of a field. however it takes up more memory and slows crud operation bcos you have to update the binary session.
+
+	db.students.createIndex() to create index for our collection of docs and inside the parameter you can pass the selection criteria and the sorting order like
+	1 for ascending and -1 for descending
+
+	db.collectionName.getIndexes() to return all the indexes created in that collection.
+
+	you can chain explain("executionStats") with find method to know how many docs were checked to find the mentioned one.
+
+	db.students.dropIndex("name_1")
+
+	totalIndexSize() to return total size of the index.
+	
+	types of indexes: single, compound, text, bitmap, geospatial, unique, sparse.
+
+	Each type of index serves a specific purpose, just like different types of indexes in a book help you find information quickly and efficiently. By using indexes, databases can significantly speed up data retrieval and improve the overall performance of applications that rely on them.
+
+Collections:
+
+	show collections -- to show collections
+
+Doubt	db.createCollection(nameForCollectionAsString, {capped:true/false-- to tell mongodb that this collection should have a max size , size:1000000, max:100 -- to set the max no: of 	docs} , {autoIndexId:false}
+
+	db.collection.drop()
+
+
+
+extras:
+	skip() -- to skip docs while returning a database
+	distint() -- to show all the distinctive values like if a value is repeated more than one time it'll only show the value one time.
+	db.collectionName.distinct('fieldName')
+	
+	to edit array elements inside a doc:
+	$push, $pop, $pull, $pullAll, $addToSet
+
+	db.arrays.update({selection criteria},{$set:{"arrayname.index":element}}) 
+
+	$push to push elements into the array, element'll be pushed to end of the array.
+	db.arrays.update({selection criteria},{$push : {arrayname : new element}})
+
+	$pop is the opposite of push
+	db.arrays.update({selection criteria},{$pop : {arrayname : 1 / -1}}) if you give one last element will get deleted and if -1 then first element will get deleted.
+
+	$pushAll to push multiple elements at a time.
+	db.arrays.update({selection criteria},{$pushAll : {arrayname : [elementOne, elementTwo etc..]}})
+
+	$pull to remove an element from the array no matter the location in which it sits.
+	db.arrays.update({selection criteria},{$pull : {arrayname: element}})
+
+	$pullAll to remove multiple elements at a time.
+	db.arrays.update({selection criteria},{$pullAll : {arrayname : [elementOne, elementTwo etc..]}})
+
+	$addToSet its like push only but checkwether the element is unique or not..
+
+	$inc to increase quantity , negative and positive doesnt matter.
+	db.collectionName.updateOne({selelction criteria},{$inc:{quantity:1}})
+	there is no syntax for decrement, instead use negative values in $inc.
+	
+	$set to insert new obj's or arrays into an object field or to make an array empty
+	db.collectionName.updateOne({selection criteria},{$set:{objField:{arrayA:[],arrayB:[]}}})
+
+	$push and $each combination instead of $pushAll
+	db.collectionName.updateOne({selection criteria},{$push:array/objName:{$each:[elementOne, elementTwo etc..]}})
+
+	upsert: update + insert
+	it is a third parameter in update which will be false in default
+	if the given filter is not present in our doc and if we set upsert to true,
+	then new doc will be created with the given filter and updating elements.
+	db.collectionName.updateOne({field:value},{updatingField:updatingValue},{upsert:true})
+
+	skip(noOfDocToBeSkipped) method is useful for pagination.
+
+ 	$currentDate is an update operator used to set the value of a field to current date or time while updating.
+	db.collectionName.updateOne({filter criteria},{$currentDate:{fieldName:true/false -- if true current date and time will be assinged to the field.}})
+
+	$rename to rename a specific field name without losing the value.
+	db.collectionName.updateOne({filter criteria},{$rename:{'oldFieldName':'newFieldName'}})
+
+	regular expression searches and full text searches:
+	
+	regular expression:
+	$regex operator is used to perform regular expression searches, allows you to match a doc where a specified field matches the regex pattern
+	db.newops.find({name:{$regex:/hudyfa/}})
+
+	for case insensitive search add an 'i' after the slash
+	db.newops.find({name:{$regex:/hudyfa/i}})
+
+	for returning doc that starts with the given keyword add a '^' before the keyword
+	db.newops.find({name:{$regex:'^hudyfa'}})
+
+	for returning doc that have one of the two values given add a '|' between the values
+	db.newops.find({name:{$regex:'hudyfa|john'}})
+
+	for returning doc that ends with the given keyword add a '$' after the keyword
+	db.newops.find({name:{$regex:'hudyfa$'}})
+
+	full text searches:
+	to use full text searches we need to first create a index
+	db.newops.createIndex({name:'text'})
+	then use $text and $search to get the doc with the given keywords.
+	db.newops.find({$text:{$search:'hudyfa'}})
+
+
+	Aggregation:
+	Aggregation in mongodb is used to manipulate and analyze data stored in our database
+
+	Aggregation pipelines:
+	
+	$group: is a stage in mongodb aggregation pipeline used to group docs by a specified field or set of fields and perform various aggregation operations
+		on the grouped data.
+	Accumulators are functions that perform specific aggregation operations. eg: $sum, $avg etc..
+	db.collectionName.aggregate([{
+				     $group:{
+					     _id:"$fieldname",
+					     newFieldName:{$sum:[$otherfieldnamelikequantity]}
+				            }
+				   }])
+	$unwind : to deconstruct an array
+	db.collectionName.aggregate([{$unwind:"$arrayName"},{$group...}])
+
+	$limit: a stage in aggregation pipeline used to restrict the number of docs that are passed to next stage of the pipeline.
+		to limit the amount of data processed in the pipeline.
+	
+	$project: enables us to specify which field to include or not.
+		db.collectionName.aggregate([{$limit:1},{$project:{_id:1,name:0,newfield:$accumulators}}])  0 or 1 aka true or false
+
+	$sort: used to sort the current docs in the given manner.
+		db.collectionName.aggregate([{$sort:{fieldName:1}}])                            1 or -1 aka ascending/descending
+
+	$match: used to sort out the docs with the given fields and values
+		db.collectionName.aggregate([{$match:{fieldname:value,fieldname:value}}])
+
+	$addFields: used to add newFields to document.
+		db.collectionName.aggregate([{$addFields:{newField:newValue,newField,newValue}}])
+
+	$count: used to count the returning docs
+		db.collectionName.aggregate([{$match:{fieldName:value}},{$count:"a fieldname to store count value"}])
+
+	$lookUp: to attach a doc in other collection with the doc in current collection
+		db.collectionName.aggregate([{$lookUp:{from:'othercollectionname',localField:"filtering field",foreignFeild:"filtering field",as:"new field name to show the doc"}}])
+
+	$out: to filter docs and push it into a new collection by creating a new collection.
+		db.collectionName.aggregate([{$match:{fieldName:value},{$out:"newCollectionName"}}])
+
+	$merge: to merge aggregation results into other doc in another collection
+		db.collectionName.aggregate([{some aggregations},{$merge:{into:otherCollectionName,whenMatched:merge/fail/replace,whenNotMatched:insert/discard}}])
+0
+	$facet: stage in aggregation pipeline that helps to use multiple sub aggregation pipelines:
+		db.collectionName.aggregate([{$facet:{firstAggregation:[{$group...}],second:[{$group...}]}}])
+
+Doubt	$sortByCount: this stage is used to group and count docs by specific field and then sort the results in descending order.
+		db.collectionName.aggregate([{$sortByCount:"$fieldName"}])
+	
+Doubt	$filter:  stage is used to filter an array within a document, keeping only the elements that meet certain conditions. It's particularly useful 		when you want to narrow down the elements in an array based on specific criteria.
+		{ $filter: { input: "$arrayField", as: "alias", cond: { condition } } }
+
+Doubt	Map and Reduce: a data processing paradigm used in mongoDb for complex aggregations.
+			map takes a collection of docs and emit key-value pairs.
+			reduce takes the key-value pairs generated by map and combines them into a set of results for each unique key.
+			to achieve use mapReduce method.
+			Map-Reduce was one of the primary ways to perform aggregation and data processing in MongoDB before the introduction of the more versatile and expressive 				Aggregation Framework. 	However, the Aggregation Framework is generally preferred for new projects because it's more user-friendly and powerful.
+			In modern MongoDB development, you'd typically use the Aggregation Framework for complex data processing tasks. It provides a more intuitive and powerful way to 			work with data.However, Map-Reduce is still available and can be useful for specific scenarios where you need more customization or where Aggregation 					Framework operations are not sufficient.
+	
+
+	embedded documents: practicing one or more docs within another document. this allows you to store related or nested datastructures within a document.
+
+	Atomic Operations:
+		An atomic operation is a single, indivisible operation that is guaranteed to be completed entirely or not at all. It's like a "do this all at once" command in a 			database. This ensures that even in a multi-user or multi-threaded environment, the operation's results remain consistent and do not leave the data in an 				intermediate or broken state. Atomic operations are important for maintaining data integrity and preventing data corruption in a database.
+		eg: basic CRUD operations, $push,$pull,$inc,$count, find and modify , find and remove etc..
+
+
+	
+	Atomicity and Transaction:
+		Atomicity is like a "all-or-nothing" promise in a database. It means that when you ask the database to do something, like making a change, it will either do it completely 		or not at all. 
+		Transactions are like a set of promises. When you need to do multiple things in the database, you want to be sure that they all happen together or none of them happens.
+
+		So, atomicity and transactions are like making sure things in the database happen completely and together, just like how you'd want your actions to work in the real world. 		If something goes wrong, it's like a magical undo button that makes everything go back to how it was before you started.
+
+	Capped Collections:
+		Capped collections are a feature in MongoDB that allow you to create fixed-size collections with a specific storage limit. 
+		Fixed Size: When you create a capped collection, you specify a maximum size (in bytes) that it can hold. It won't grow beyond this size.
+		FIFO (First-In-First-Out): Data in capped collections follows a first-in-first-out pattern. The oldest documents are the first to be removed when the collection reaches its 		size limit.
+		Capped collections are a handy feature for scenarios where you need a circular or time-limited data storage mechanism.
+	
+	GridFs:
+		GridFS is a specification and toolset for storing and retrieving large files, such as audio, video, images, and other binary data, in MongoDB. It's a way to handle files 		that are too large to be stored as a single document in the standard BSON format used by MongoDB. GridFS breaks large files into smaller chunks and stores them as documents 		in a pair of collections, making it a practical solution for working with large files in a NoSQL database like MongoDB.
+
+	
+	Cap theorem: 
+		aka brewers theorem is fundamental concept in distributed systems.
+		c--consistency:all nodes in the system see the same data at the same time.
+		a--availibility:Every request to the system recieves a response without guarantee of its contents.
+		p--partition:he system continues to operate even in the presence of network partitions or message loss between nodes.
+		all three of them cant happen at the same time only two of em can do.
+
+	Sharding and horizontal scaling:
+		In the world of databases, horizontal scaling means adding more servers or machines to your database system to accommodate growing data and traffic. Each server handles a 		part of the data, spreading the load and increasing your system's capacity.
+		In database sharding, you distribute your data across multiple database servers or clusters. Each shard contains a subset of the data, and it's stored on a separate server.
+		Sharding in databases is like dividing your data into smaller, manageable parts (shards).
+
+		So, when your data grows, you can keep adding more servers (horizontal scaling) and distribute the data across them (sharding). This approach allows your database to handle 		massive amounts of data and traffic while keeping performance high and ensuring fault tolerance.
+
+		features of sharding:
+		It improves data retrieval and query performance because each shard only deals with a fraction of the data.
+		It allows you to handle larger datasets and higher traffic as you can add more shards when needed.
+		It provides fault tolerance because if one server fails, it doesn't affect the entire database.
+
+	Replica Sets:
+		In the world of databases, a replica set is like those copies of your notebook. It's a group of MongoDB servers that work together to ensure data availability and 			reliability. Each server in the replica set contains the same data, so if one server fails, another can take over, just like you can use one of your copies if the original 		notebook is unavailable.
+
+	High Availability:
+		In database terms, high availability means ensuring that your data is always accessible, even when there are server failures or maintenance tasks. In a replica set, if one 		server goes down for any reason, the other servers can seamlessly take over, and your application can continue to read and write data without interruption. This minimizes 		downtime and ensures that your database remains available even when there are hiccups in the system.
+
+Doubt	MongoDb view:
+		MongoDB Views are a feature that allows you to define and use virtual collections in MongoDB. These virtual collections are similar to regular collections in that you can 		query and interact with them, but they don't store data themselves.Instead, they act as dynamic filters or projections of data from one or more source collections.
+
+	nameSpace:
+		In MongoDB, a "namespace" is a term used to describe the combination of a database and a collection.
+		for eg: database.collection
+
+	save:
+		for inserting a new document and updating an exisitng doucment.
+		like if you pass id in a save method it will update , else if you dont it will insert.
+		that's how it is different from insert.
+
+	$ifNull: search!!
+
+	findOneAndUpdate:
+		to find a certain doc and update it
+		db.collectionName.findOneAndUpdate({filtering criteria},{updating like either insert a new or update or delete},{returnOriginal:true/false})
+
+	BulkWrite:
+		Allows you to perform multiple writings in a single batch such as insert, update, delete in a single session.
+		const bulk = db.createCollection.initializeOrderedBulkOp();
+		bulk.insert..
+		bulk.update..
+		add lot of writing to bulk object then execute it
+		bulk.execute()
+	
+	BatchSize vs Limit:
+		while limit is used to restrict the number of docs returned batchsize is used to specify max number of docs to be retrieved in each batch.
+
+	Chunking:
+		n MongoDB, "chunking" is a concept related to sharding, which is the horizontal partitioning of data across multiple servers or replica sets.
+
+	transaction Handling:
+		create a session,
+		start a transaction using session,
+		perform operations,
+		commit transaction,
+		abort transaction,
+		end session.
+
+	two phase commit protocol: 
+		The Two-Phase Commit (2PC) protocol is a distributed transaction protocol used to ensure that a distributed transaction is either committed on all participating nodes 			or rolled back to maintain data consistency in a distributed system.
+	
+	Election and voting:
+		these terms comes under replication , replica sets .. so when a primary node fails due to maintenance/failure/connection election play a crucial role in selecting a node 
+		as primary and rest of em as secondary. and Voting plays a crucial role in election of a primary node, we can set number of votes for each member of replica set
+		by default its one.
+
+	Primary key index vs secondary key index: 
+		there are no such things in mongoDB, comparing to relational Database _id act as a primary key index(to uniquely identify each doc) and rest created indexes act as 			secondary index.
+
+	$elemMatch: to return docs based on elements inside an array.
+		eg: db.collection.find({arrayName:{$elemMatch:{$gte:99}}})
+
+	Journaling: its more like a backup database, its like keeping an extra database which is the copy of the original one, whenever changes are done in original it is also applied in
+		    the journal database. Therefore if something bad happens, we can use this journal database to recover our original database.
+
+
+	$first and $last:
+		aggregation operations used to return first and last doc with given value
+		db.collection.aggregate([{$group:{_id:"$fieldName",something:{$first:"$somevalue"}}}])
+
+Doubt	$min and $max:
+		aggregation operations used to return max and min valued docs like doc with max mark etc..
+		db.collection.aggregate([{$group:{_id:"$something",mark:{$max:"$marks"}}}])	
+
+	
+	totalIndexSize() and storageSize():
+		methods used to return size of a collection, totalIndexSize() method is used to return total size of all the indexes and storageSize() to return total storage size
+		of a collection including both data and index sizes.
+
+	
+	
+		
+
+	
+
+		
+		
+	
+	
+
+	
+	
+
+	
+
+
+
+
