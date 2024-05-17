@@ -19,23 +19,25 @@ db.students.insertMany([
 ])
 
 db.school.find({name:'Arun'})
-db.school.find().sort({name:1})
 db.school.find({name : {$ne : 'Akhil'}})
- db.school.find({name : 'Arun', r_no : '5'})
+db.school.find().sort({name:1})
 This is for AND Operation
-db.school.find({ $or : [{name : 'Arun'}, {name : 'Anila'}]})
+ db.school.find({name : 'Arun', r_no : '5'})
+
 This is for OR operation
+db.school.find({ $or : [{name : 'Arun'}, {name : 'Anila'}]})
+
 db.school.find().count()
 db.school.find({name : 'Arun'}).count()
 db.school.find().limit(2)
- db.school.findOne()
+db.school.findOne()
 
 db.school.find().forEach(function(doc) {
 	print("Name: " + doc.name);
 });
 
-db.school.find({}, {'name':1})
- db.school.find({name: 'Arun'}, {'name':1})
+db.school.find({}, {'name':1})  Show selected  field only
+db.school.find({name: 'Arun'}, {'name':1})  Match and selected field only
 db.school.find({}, {'name':1, _id : 0})
 db.school.find({}, {'name':1, 'r_no': 1, _id : 0})
 db.school.find().skip(2)
@@ -52,27 +54,186 @@ db.school.updateOne(
 ... 	{ upsert: true } // Option to insert if the document doesn't exist
 ... )
 
-Increment
-db.school.update({name : 'Joel'}, {$inc : {r_no: 1}})
+
+db.school.update({name : 'Joel'}, {$inc : {r_no: 1}}) Increment
 db.school.update({name : 'Monu'}, { $rename : {'r_no' : 'roll_no'}})
 db.school.deleteOne({name : 'Sandhya'})
 Add a subdocument
  db.school.update( {name : 'Sujatha'},
 ... {
 ... $set : { comments : [
-... { body : 'Study well',
-... teacher : 'Prasanth'},
-... { body : 'Need improvements',
-... teacher : 'Raji'},
-... { body : 'Practice more',
-... teachere : 'Nikhil'}
+... { body : 'Study well', teacher : 'Prasanth'},
+... { body : 'Need improvements', teacher : 'Raji'},
+... { body : 'Practice more', teachere : 'Nikhil'}
 ... ]
-... }}
+... }} 
 ... )
 
 Element Match
 db.school.find({ comments: { $elemMatch: { teacher: 'Nikhil' } } })
+
+
+
 Greater than
 db.school.find({ r_no : {$gt : 10 }})
 $gte 
-db.school.find({ r_no : {$lt : 5 }})
+db.school.find({ r_no : {$lt : 5 }})  
+Aggregation
+Match
+ db.persons.aggregate([
+... {$match : {isActive : true}}
+... ])
+
+db.persons.aggregate([ {$match : { tags : {$size : 2}}} ]) tag array length will be 2
+db.persons.find({tags : {$size : 2}})
+Group
+db.persons.aggregate([
+... { $group : {_id : "$age"}}
+... ])
+
+db.persons.aggregate([ { $group: { _id: "$gender" } }] )
+Group using subdocument
+ db.persons.aggregate([
+... {$group : {_id : "$company.location.country"}}
+... ])
+ 
+Group by multiple fields
+ db.persons.aggregate([
+... {$group : { _id : {Eye_color : "$eyeColor",
+... Fav_fruit : "$favoriteFruit"}}}
+... ])
+
+
+Group With sort
+ db.persons.aggregate([
+...   {
+... 	$group: {
+...   	_id: { Age: "$age", Gender: "$gender" }
+... 	}
+...   },
+...   {
+... 	$sort: { "_id.Age": 1 } // Sort by age in ascending order
+...   }
+... ])
+Match and Group
+db.persons.aggregate([
+... {$match : {gender : 'female'}}, // Stage 1
+... { $group : {_id : {Eye_Color : "$eyeColor", Gender : "$gender"}}} // Stage 2
+... ])
+Group and Match
+ db.person.aggregate([
+... {$group : {_id : {Eye_color : "$eyeColor", Fav_fruit : "$favoriteFruit"}}},
+... {$match : {Gender : "female"}}
+... ])
+
+
+
+Count
+db.persons.aggregate([
+{$count : “Document_count : “}
+])
+
+db.persons.aggregate([]).toArray().length
+db.persons.aggregate([]).itcount()
+db.persons.aggregate([{$count: "Total"}])
+
+Group and Count
+db.persons.aggregate([
+... {$group : {_id : "$gender"}},
+... {$count: "Genders: "}
+... ])
+Group two items and count
+ db.persons.aggregate([
+... {$group: {_id: {Eye_color: "$eyeColor", Gender : "$gender"}}},
+... {$count : "Total_matches :"}
+... ])
+Sort
+db.persons.aggregate([ { $sort: { name: 1 } }] )
+ db.persons.aggregate([ { $sort: { age : 1, name : -1 } }] )
+Sort with stages (Group and Match)
+ db.persons.aggregate([ 
+... {$group: {_id : "$age"}},
+... {$sort : {_id : 1}}
+])
+Two Groups
+db.persons.aggregate([
+... {$group : {_id: {Eye_Color : "$eyeColor",
+... Favorite_Fruit : "$favoriteFruit"}}},
+... {$sort: {"_id.Eye_Color" : 1, "_id.Favorite_Fruit" : 1}}
+... ])
+
+
+
+Group and Match
+ db.persons.aggregate([
+... {$match : {eyeColor : {$ne : "blue" }}},
+... {$group : {_id: {eyeColor: "$eyeColor",
+... favoriteFruit : "$favoriteFruit"}}},
+... {$sort : {"_id.eyeColor": 1, "_id.favoriteFruit": 1}}
+... ])
+
+
+Project
+db.collection.aggregate([
+  {
+    $project: { name: 1,  age: 1,
+      isAdult: { $gte: ["$age", 18] } // This will be true if age is 18 or above, false otherwise
+    }
+  }
+])
+Average
+db.collection.aggregate([
+  {
+	$group: {
+  	_id: null, averageAge: { $avg: "$age" }
+	}
+  }
+])
+Min 
+db.collection.aggregate([
+  {
+	$group: {
+  	_id: null, averageAge: { $avg: "$age" }
+	}
+  }
+])
+
+Sum
+db.collection.aggregate([
+  {
+	$group: {
+  	_id: null, Sum: { $sum: "$age" }
+	}
+  }
+])
+
+
+Accumulation
+db.persons.aggregate([
+  // Stage 1: Match documents based on certain conditions
+  {
+    $match: {
+      eyeColor: 'green' // Match documents where the eye color is green
+    }
+  },
+  // Stage 2: Group documents and accumulate data
+  {
+    $group: {
+      _id: "$favoriteFruit", // Group by favoriteFruit field
+      totalAge: { $sum: "$age" } // Accumulate the total age for each favorite fruit
+    }
+  }
+]);
+
+
+
+db.persons.aggregate([
+  {
+    $group: {
+      _id: "$favoriteFruit", // Group by favoriteFruit field
+      totalAge: { $sum: "$age" } // Accumulate the total age for each favorite fruit
+    }
+  }
+]);
+
+
